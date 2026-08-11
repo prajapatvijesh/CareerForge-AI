@@ -15,19 +15,28 @@ interface SectionEditorProps {
 export const SectionEditor: React.FC<SectionEditorProps> = ({ resume, sectionType, onBack }) => {
   const updateMutation = useUpdateResume(resume._id);
   const section = resume.sections?.find((s: any) => s.type === sectionType) || { type: sectionType, isVisible: true, data: {} };
+  
+  const [localData, setLocalData] = React.useState(section.data || {});
 
-  const updateSectionData = (newData: any) => {
-    const updatedSections = [...(resume.sections || [])];
-    const index = updatedSections.findIndex(s => s.type === sectionType);
-    
-    if (index >= 0) {
-      updatedSections[index] = { ...updatedSections[index], data: newData };
-    } else {
-      updatedSections.push({ type: sectionType, isVisible: true, order: updatedSections.length, data: newData });
-    }
-    
-    updateMutation.mutate({ sections: updatedSections });
-  };
+  React.useEffect(() => {
+    setLocalData(section.data || {});
+  }, [sectionType]); // Reset local data when switching sections
+
+  React.useEffect(() => {
+    const timer = setTimeout(() => {
+      const updatedSections = [...(resume.sections || [])];
+      const index = updatedSections.findIndex(s => s.type === sectionType);
+      
+      if (index >= 0) {
+        updatedSections[index] = { ...updatedSections[index], data: localData };
+      } else {
+        updatedSections.push({ type: sectionType, isVisible: true, order: updatedSections.length, data: localData });
+      }
+      
+      updateMutation.mutate({ sections: updatedSections });
+    }, 500);
+    return () => clearTimeout(timer);
+  }, [localData, sectionType, resume._id]);
 
   const renderEditor = () => {
     switch (sectionType) {
@@ -37,8 +46,8 @@ export const SectionEditor: React.FC<SectionEditorProps> = ({ resume, sectionTyp
             <div>
               <Label>Full Name</Label>
               <Input 
-                value={section.data?.fullName || ''} 
-                onChange={(e) => updateSectionData({ ...section.data, fullName: e.target.value })} 
+                value={localData?.fullName || ''} 
+                onChange={(e) => setLocalData({ ...localData, fullName: e.target.value })} 
                 placeholder="e.g. John Doe"
                 className="mt-1"
               />
@@ -47,8 +56,8 @@ export const SectionEditor: React.FC<SectionEditorProps> = ({ resume, sectionTyp
               <Label>Email</Label>
               <Input 
                 type="email"
-                value={section.data?.email || ''} 
-                onChange={(e) => updateSectionData({ ...section.data, email: e.target.value })} 
+                value={localData?.email || ''} 
+                onChange={(e) => setLocalData({ ...localData, email: e.target.value })} 
                 placeholder="e.g. john@example.com"
                 className="mt-1"
               />
@@ -56,8 +65,8 @@ export const SectionEditor: React.FC<SectionEditorProps> = ({ resume, sectionTyp
             <div>
               <Label>Phone</Label>
               <Input 
-                value={section.data?.phone || ''} 
-                onChange={(e) => updateSectionData({ ...section.data, phone: e.target.value })} 
+                value={localData?.phone || ''} 
+                onChange={(e) => setLocalData({ ...localData, phone: e.target.value })} 
                 placeholder="e.g. +1 234 567 8900"
                 className="mt-1"
               />
@@ -65,8 +74,8 @@ export const SectionEditor: React.FC<SectionEditorProps> = ({ resume, sectionTyp
             <div>
               <Label>Location</Label>
               <Input 
-                value={section.data?.location || ''} 
-                onChange={(e) => updateSectionData({ ...section.data, location: e.target.value })} 
+                value={localData?.location || ''} 
+                onChange={(e) => setLocalData({ ...localData, location: e.target.value })} 
                 placeholder="e.g. New York, NY"
                 className="mt-1"
               />
@@ -74,8 +83,8 @@ export const SectionEditor: React.FC<SectionEditorProps> = ({ resume, sectionTyp
             <div>
               <Label>LinkedIn</Label>
               <Input 
-                value={section.data?.linkedin || ''} 
-                onChange={(e) => updateSectionData({ ...section.data, linkedin: e.target.value })} 
+                value={localData?.linkedin || ''} 
+                onChange={(e) => setLocalData({ ...localData, linkedin: e.target.value })} 
                 placeholder="e.g. linkedin.com/in/johndoe"
                 className="mt-1"
               />
@@ -83,8 +92,8 @@ export const SectionEditor: React.FC<SectionEditorProps> = ({ resume, sectionTyp
             <div>
               <Label>Portfolio / Website</Label>
               <Input 
-                value={section.data?.website || ''} 
-                onChange={(e) => updateSectionData({ ...section.data, website: e.target.value })} 
+                value={localData?.website || ''} 
+                onChange={(e) => setLocalData({ ...localData, website: e.target.value })} 
                 placeholder="e.g. johndoe.com"
                 className="mt-1"
               />
@@ -98,8 +107,8 @@ export const SectionEditor: React.FC<SectionEditorProps> = ({ resume, sectionTyp
             <div>
               <Label>Headline / Job Title</Label>
               <Input 
-                value={section.data?.headline || ''} 
-                onChange={(e) => updateSectionData({ ...section.data, headline: e.target.value })} 
+                value={localData?.headline || ''} 
+                onChange={(e) => setLocalData({ ...localData, headline: e.target.value })} 
                 placeholder="e.g. Senior Frontend Engineer"
                 className="mt-1"
               />
@@ -107,8 +116,8 @@ export const SectionEditor: React.FC<SectionEditorProps> = ({ resume, sectionTyp
             <div>
               <Label>Professional Summary</Label>
               <Textarea 
-                value={section.data?.summary || ''} 
-                onChange={(e) => updateSectionData({ ...section.data, summary: e.target.value })} 
+                value={localData?.summary || ''} 
+                onChange={(e) => setLocalData({ ...localData, summary: e.target.value })} 
                 placeholder="Write a brief professional summary..."
                 className="mt-1 min-h-[150px]"
               />
@@ -117,7 +126,7 @@ export const SectionEditor: React.FC<SectionEditorProps> = ({ resume, sectionTyp
         );
 
       case 'EXPERIENCE': {
-        const experiences = section.data?.items || [];
+        const experiences = localData?.items || [];
         return (
           <div className="space-y-6">
             {experiences.map((exp: any, i: number) => (
@@ -126,7 +135,7 @@ export const SectionEditor: React.FC<SectionEditorProps> = ({ resume, sectionTyp
                   onClick={() => {
                     const newItems = [...experiences];
                     newItems.splice(i, 1);
-                    updateSectionData({ ...section.data, items: newItems });
+                    setLocalData({ ...localData, items: newItems });
                   }}
                   className="absolute top-3 right-3 text-red-500 hover:text-red-700"
                 >
@@ -138,7 +147,7 @@ export const SectionEditor: React.FC<SectionEditorProps> = ({ resume, sectionTyp
                   <Input value={exp.title || ''} onChange={(e) => {
                     const newItems = [...experiences];
                     newItems[i].title = e.target.value;
-                    updateSectionData({ ...section.data, items: newItems });
+                    setLocalData({ ...localData, items: newItems });
                   }} className="mt-1" />
                 </div>
                 <div>
@@ -146,7 +155,7 @@ export const SectionEditor: React.FC<SectionEditorProps> = ({ resume, sectionTyp
                   <Input value={exp.company || ''} onChange={(e) => {
                     const newItems = [...experiences];
                     newItems[i].company = e.target.value;
-                    updateSectionData({ ...section.data, items: newItems });
+                    setLocalData({ ...localData, items: newItems });
                   }} className="mt-1" />
                 </div>
                 <div className="grid grid-cols-2 gap-4">
@@ -155,7 +164,7 @@ export const SectionEditor: React.FC<SectionEditorProps> = ({ resume, sectionTyp
                     <Input value={exp.startDate || ''} onChange={(e) => {
                       const newItems = [...experiences];
                       newItems[i].startDate = e.target.value;
-                      updateSectionData({ ...section.data, items: newItems });
+                      setLocalData({ ...localData, items: newItems });
                     }} className="mt-1" placeholder="MM/YYYY" />
                   </div>
                   <div>
@@ -163,7 +172,7 @@ export const SectionEditor: React.FC<SectionEditorProps> = ({ resume, sectionTyp
                     <Input value={exp.endDate || ''} onChange={(e) => {
                       const newItems = [...experiences];
                       newItems[i].endDate = e.target.value;
-                      updateSectionData({ ...section.data, items: newItems });
+                      setLocalData({ ...localData, items: newItems });
                     }} className="mt-1" placeholder="MM/YYYY or Present" />
                   </div>
                 </div>
@@ -172,7 +181,7 @@ export const SectionEditor: React.FC<SectionEditorProps> = ({ resume, sectionTyp
                   <Textarea value={exp.description || ''} onChange={(e) => {
                     const newItems = [...experiences];
                     newItems[i].description = e.target.value;
-                    updateSectionData({ ...section.data, items: newItems });
+                    setLocalData({ ...localData, items: newItems });
                   }} className="mt-1 min-h-[100px]" placeholder="Describe your achievements..." />
                 </div>
               </div>
@@ -181,7 +190,7 @@ export const SectionEditor: React.FC<SectionEditorProps> = ({ resume, sectionTyp
               variant="outline" 
               className="w-full border-dashed"
               onClick={() => {
-                updateSectionData({ ...section.data, items: [...experiences, { title: '', company: '', startDate: '', endDate: '', description: '' }] });
+                setLocalData({ ...localData, items: [...experiences, { title: '', company: '', startDate: '', endDate: '', description: '' }] });
               }}
             >
               <Plus className="w-4 h-4 mr-2" /> Add Experience
@@ -191,7 +200,7 @@ export const SectionEditor: React.FC<SectionEditorProps> = ({ resume, sectionTyp
       }
 
       case 'EDUCATION': {
-        const education = section.data?.items || [];
+        const education = localData?.items || [];
         return (
           <div className="space-y-6">
             {education.map((edu: any, i: number) => (
@@ -200,7 +209,7 @@ export const SectionEditor: React.FC<SectionEditorProps> = ({ resume, sectionTyp
                   onClick={() => {
                     const newItems = [...education];
                     newItems.splice(i, 1);
-                    updateSectionData({ ...section.data, items: newItems });
+                    setLocalData({ ...localData, items: newItems });
                   }}
                   className="absolute top-3 right-3 text-red-500 hover:text-red-700"
                 >
@@ -212,7 +221,7 @@ export const SectionEditor: React.FC<SectionEditorProps> = ({ resume, sectionTyp
                   <Input value={edu.school || ''} onChange={(e) => {
                     const newItems = [...education];
                     newItems[i].school = e.target.value;
-                    updateSectionData({ ...section.data, items: newItems });
+                    setLocalData({ ...localData, items: newItems });
                   }} className="mt-1" />
                 </div>
                 <div>
@@ -220,7 +229,7 @@ export const SectionEditor: React.FC<SectionEditorProps> = ({ resume, sectionTyp
                   <Input value={edu.degree || ''} onChange={(e) => {
                     const newItems = [...education];
                     newItems[i].degree = e.target.value;
-                    updateSectionData({ ...section.data, items: newItems });
+                    setLocalData({ ...localData, items: newItems });
                   }} className="mt-1" placeholder="e.g. B.S. Computer Science" />
                 </div>
                 <div className="grid grid-cols-2 gap-4">
@@ -229,7 +238,7 @@ export const SectionEditor: React.FC<SectionEditorProps> = ({ resume, sectionTyp
                     <Input value={edu.startDate || ''} onChange={(e) => {
                       const newItems = [...education];
                       newItems[i].startDate = e.target.value;
-                      updateSectionData({ ...section.data, items: newItems });
+                      setLocalData({ ...localData, items: newItems });
                     }} className="mt-1" placeholder="MM/YYYY" />
                   </div>
                   <div>
@@ -237,7 +246,7 @@ export const SectionEditor: React.FC<SectionEditorProps> = ({ resume, sectionTyp
                     <Input value={edu.endDate || ''} onChange={(e) => {
                       const newItems = [...education];
                       newItems[i].endDate = e.target.value;
-                      updateSectionData({ ...section.data, items: newItems });
+                      setLocalData({ ...localData, items: newItems });
                     }} className="mt-1" placeholder="MM/YYYY or Expected" />
                   </div>
                 </div>
@@ -247,7 +256,7 @@ export const SectionEditor: React.FC<SectionEditorProps> = ({ resume, sectionTyp
               variant="outline" 
               className="w-full border-dashed"
               onClick={() => {
-                updateSectionData({ ...section.data, items: [...education, { school: '', degree: '', startDate: '', endDate: '' }] });
+                setLocalData({ ...localData, items: [...education, { school: '', degree: '', startDate: '', endDate: '' }] });
               }}
             >
               <Plus className="w-4 h-4 mr-2" /> Add Education
@@ -257,7 +266,7 @@ export const SectionEditor: React.FC<SectionEditorProps> = ({ resume, sectionTyp
       }
 
       case 'SKILLS': {
-        const skillsArray = section.data?.items || [];
+        const skillsArray = localData?.items || [];
         const skillsString = Array.isArray(skillsArray) ? skillsArray.join(', ') : '';
         return (
           <div className="space-y-4">
@@ -267,7 +276,7 @@ export const SectionEditor: React.FC<SectionEditorProps> = ({ resume, sectionTyp
                 value={skillsString} 
                 onChange={(e) => {
                   const arr = e.target.value.split(',').map(s => s.trim()).filter(s => s.length > 0);
-                  updateSectionData({ ...section.data, items: arr });
+                  setLocalData({ ...localData, items: arr });
                 }} 
                 placeholder="e.g. JavaScript, React, Node.js"
                 className="mt-1 min-h-[150px]"
@@ -278,7 +287,7 @@ export const SectionEditor: React.FC<SectionEditorProps> = ({ resume, sectionTyp
       }
 
       case 'PROJECTS': {
-        const projects = section.data?.items || [];
+        const projects = localData?.items || [];
         return (
           <div className="space-y-6">
             {projects.map((proj: any, i: number) => (
@@ -287,7 +296,7 @@ export const SectionEditor: React.FC<SectionEditorProps> = ({ resume, sectionTyp
                   onClick={() => {
                     const newItems = [...projects];
                     newItems.splice(i, 1);
-                    updateSectionData({ ...section.data, items: newItems });
+                    setLocalData({ ...localData, items: newItems });
                   }}
                   className="absolute top-3 right-3 text-red-500 hover:text-red-700"
                 >
@@ -299,7 +308,7 @@ export const SectionEditor: React.FC<SectionEditorProps> = ({ resume, sectionTyp
                   <Input value={proj.name || ''} onChange={(e) => {
                     const newItems = [...projects];
                     newItems[i].name = e.target.value;
-                    updateSectionData({ ...section.data, items: newItems });
+                    setLocalData({ ...localData, items: newItems });
                   }} className="mt-1" />
                 </div>
                 <div>
@@ -307,7 +316,7 @@ export const SectionEditor: React.FC<SectionEditorProps> = ({ resume, sectionTyp
                   <Input value={Array.isArray(proj.technologies) ? proj.technologies.join(', ') : ''} onChange={(e) => {
                     const newItems = [...projects];
                     newItems[i].technologies = e.target.value.split(',').map(s => s.trim()).filter(s => s.length > 0);
-                    updateSectionData({ ...section.data, items: newItems });
+                    setLocalData({ ...localData, items: newItems });
                   }} className="mt-1" placeholder="React, Node.js" />
                 </div>
                 <div>
@@ -315,7 +324,7 @@ export const SectionEditor: React.FC<SectionEditorProps> = ({ resume, sectionTyp
                   <Textarea value={proj.description || ''} onChange={(e) => {
                     const newItems = [...projects];
                     newItems[i].description = e.target.value;
-                    updateSectionData({ ...section.data, items: newItems });
+                    setLocalData({ ...localData, items: newItems });
                   }} className="mt-1 min-h-[100px]" placeholder="Describe the project..." />
                 </div>
               </div>
@@ -324,7 +333,7 @@ export const SectionEditor: React.FC<SectionEditorProps> = ({ resume, sectionTyp
               variant="outline" 
               className="w-full border-dashed"
               onClick={() => {
-                updateSectionData({ ...section.data, items: [...projects, { name: '', technologies: [], description: '' }] });
+                setLocalData({ ...localData, items: [...projects, { name: '', technologies: [], description: '' }] });
               }}
             >
               <Plus className="w-4 h-4 mr-2" /> Add Project
