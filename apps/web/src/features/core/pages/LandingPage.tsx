@@ -162,9 +162,15 @@ export const LandingPage = () => {
             Join thousands of professionals who have accelerated their careers with CareerForge AI.
           </p>
           <div className="pt-4">
-            <Button asChild size="lg" className="rounded-full px-10 h-14 text-lg font-bold bg-white text-indigo-600 hover:bg-indigo-50 shadow-xl transition-transform hover:scale-105">
-              <Link to="/signup">Start Building Your Future</Link>
-            </Button>
+            {isAuthenticated ? (
+              <Button asChild size="lg" className="rounded-full px-10 h-14 text-lg font-bold bg-white text-indigo-600 hover:bg-indigo-50 shadow-xl transition-transform hover:scale-105">
+                <Link to="/dashboard">Go to Dashboard</Link>
+              </Button>
+            ) : (
+              <Button asChild size="lg" className="rounded-full px-10 h-14 text-lg font-bold bg-white text-indigo-600 hover:bg-indigo-50 shadow-xl transition-transform hover:scale-105">
+                <Link to="/signup">Start Building Your Future</Link>
+              </Button>
+            )}
           </div>
         </div>
       </section>
