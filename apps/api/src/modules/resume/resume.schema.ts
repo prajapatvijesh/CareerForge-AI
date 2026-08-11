@@ -7,7 +7,7 @@ const themeSchema = z.object({
 
 const sectionSchema = z.object({
   _id: z.string().optional(), // Provided by client if updating existing, omitted if new
-  type: z.enum(['SUMMARY', 'EXPERIENCE', 'EDUCATION', 'SKILLS', 'PROJECTS', 'CERTIFICATIONS', 'LANGUAGES', 'INTERESTS', 'REFERENCES']),
+  type: z.enum(['PERSONAL', 'SUMMARY', 'EXPERIENCE', 'EDUCATION', 'SKILLS', 'PROJECTS', 'CERTIFICATIONS', 'LANGUAGES', 'INTERESTS', 'REFERENCES']),
   isVisible: z.boolean(),
   order: z.number(),
   data: z.any().optional(),
