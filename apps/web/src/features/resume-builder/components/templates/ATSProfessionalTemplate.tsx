@@ -56,7 +56,7 @@ export const ATSProfessionalTemplate: React.FC<TemplateProps> = ({ resume }) => 
                     {section.data?.items?.map((item: any, i: number) => (
                       <div key={i}>
                         <div className="flex justify-between font-bold">
-                          <span>{item.position}</span>
+                          <span>{item.title || item.position}</span>
                           <span>{formatDate(item.startDate)} - {item.current ? 'Present' : formatDate(item.endDate)}</span>
                         </div>
                         <div className="italic">{item.company} {item.location ? `— ${item.location}` : ''}</div>
@@ -73,7 +73,7 @@ export const ATSProfessionalTemplate: React.FC<TemplateProps> = ({ resume }) => 
                           <span>{item.school}</span>
                           <span>{formatDate(item.startDate)} - {item.current ? 'Present' : formatDate(item.endDate)}</span>
                         </div>
-                        <div>{item.degree} in {item.fieldOfStudy}</div>
+                        <div>{item.degree} {item.fieldOfStudy ? `in ${item.fieldOfStudy}` : ''}</div>
                         {item.description && <p className="mt-1 leading-tight">{item.description}</p>}
                       </div>
                     ))}
@@ -93,7 +93,7 @@ export const ATSProfessionalTemplate: React.FC<TemplateProps> = ({ resume }) => 
                     {section.data?.items?.map((item: any, i: number) => (
                       <div key={i}>
                         <div className="flex justify-between font-bold">
-                          <span>{item.title}</span>
+                          <span>{item.name || item.title}</span>
                           {item.startDate && (
                             <span>{formatDate(item.startDate)} {item.endDate ? `- ${formatDate(item.endDate)}` : ''}</span>
                           )}

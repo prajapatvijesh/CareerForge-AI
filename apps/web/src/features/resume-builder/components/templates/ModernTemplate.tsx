@@ -61,7 +61,7 @@ export const ModernTemplate: React.FC<TemplateProps> = ({ resume }) => {
                     {section.data?.items?.map((item: any, i: number) => (
                       <div key={i}>
                         <div className="flex justify-between items-baseline mb-1">
-                          <h3 className="text-base font-semibold text-gray-900">{item.position}</h3>
+                          <h3 className="text-base font-semibold text-gray-900">{item.title || item.position}</h3>
                           <span className="text-xs font-medium text-gray-500 whitespace-nowrap ml-4">
                             {formatDate(item.startDate)} - {item.current ? 'Present' : formatDate(item.endDate)}
                           </span>
@@ -82,7 +82,9 @@ export const ModernTemplate: React.FC<TemplateProps> = ({ resume }) => {
                             {formatDate(item.startDate)} - {item.current ? 'Present' : formatDate(item.endDate)}
                           </span>
                         </div>
-                        <div className="text-gray-600 font-medium">{item.degree} in {item.fieldOfStudy}</div>
+                        <div className="text-gray-600 font-medium">
+                          {item.degree} {item.fieldOfStudy ? `in ${item.fieldOfStudy}` : ''}
+                        </div>
                         {item.description && <p className="text-gray-600 mt-1">{item.description}</p>}
                       </div>
                     ))}
@@ -102,7 +104,7 @@ export const ModernTemplate: React.FC<TemplateProps> = ({ resume }) => {
                     {section.data?.items?.map((item: any, i: number) => (
                       <div key={i}>
                         <div className="flex justify-between items-baseline mb-1">
-                          <h3 className="text-base font-semibold text-gray-900">{item.title}</h3>
+                          <h3 className="text-base font-semibold text-gray-900">{item.name || item.title}</h3>
                           {item.startDate && (
                             <span className="text-xs font-medium text-gray-500 whitespace-nowrap ml-4">
                               {formatDate(item.startDate)} {item.endDate ? `- ${formatDate(item.endDate)}` : ''}
